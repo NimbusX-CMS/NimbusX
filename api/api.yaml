@@ -1,0 +1,560 @@
+openapi: 3.1.0
+info:
+  title: NimbusX-API
+  license:
+    name: AGPL 3.0
+    url: https://www.gnu.org/licenses/agpl-3.0.txt
+  version: 1.0.0
+tags:
+  - name: Login
+    description: The API has an endpoint to authenticate a user.
+  - name: User
+    description: The API has an endpoint to modify user data.
+  - name: Space
+    description: The API has an endpoint to modify spaces.
+  - name: Webhooks
+    description: The API has an endpoint to modify webhooks.
+security:
+  - cookieAuth: []
+paths:
+  # Login
+  /login:
+    get:
+      tags:
+        - "Login"
+      responses:
+        "200":
+          description: Returns data of currently logged in user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+    post:
+      tags:
+        - "Login"
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: Returns a valid session key
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  session:
+                    type: string
+
+  # User
+  /password/{token}:
+    parameters:
+      - name: token
+        in: path
+        description: a unique token, which is send to the user via email (included in the reset password link)
+        required: true
+        schema:
+          type: string
+    post:
+      tags:
+        - "User"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Password"
+
+  /users/:
+    get:
+      tags:
+        - "User"
+      responses:
+        "200":
+          description: A list of Users.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+        "500":
+          description: Issue with the server.
+
+  /user/:
+    post:
+      tags:
+        - "User"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        "201":
+          description: Returns the created user.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          description: Issue with your Request.
+        "404":
+          description: Entry not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "User with this email already exists"
+        "500":
+          description: Issue with the server.
+
+  /user/{user-id}:
+    parameters:
+      - name: user-id
+        in: path
+        description: ID parameter
+        required: true
+        schema:
+          type: integer
+    get:
+      tags:
+        - "User"
+      responses:
+        "200":
+          description: Returns the specified User.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          description: Issue with your Request.
+        "404":
+          description: Entry not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "User not found, by the given id"
+        "500":
+          description: Issue with the server.
+    put:
+      tags:
+        - "User"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        "200":
+          description: Returns the modified User.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          description: Issue with your Request.
+        "404":
+          description: Entry not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "User not found, by the given id"
+        "500":
+          description: Issue with the server.
+    delete:
+      tags:
+        - "User"
+      responses:
+        "200":
+          description: User deleted
+        "400":
+          description: Issue with your Request.
+        "404":
+          description: Entry not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "User not found, by the given id"
+        "500":
+          description: Issue with the server.
+
+  /user/{user-id}/spaces:
+    parameters:
+      - name: user-id
+        in: path
+        description: ID parameter
+        required: true
+        schema:
+          type: integer
+    get:
+      tags:
+        - "User"
+      responses:
+        "200":
+          description: A list of Spaces the user have access.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SpaceAccess"
+        "400":
+          description: Issue with your Request.
+        "404":
+          description: Entry not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "User not found, by the given id"
+        "500":
+          description: Issue with the server.
+    patch:
+      tags:
+        - "User"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SpaceAccess"
+      responses:
+        "200":
+          description: Returns the modified SpaceAccess.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SpaceAccess"
+        "400":
+          description: Issue with your Request.
+        "404":
+          description: Entry not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "User not found, by the given id"
+        "500":
+          description: Issue with the server.
+
+  /user/{user-id}/space/{space-id}:
+    parameters:
+      - name: user-id
+        in: path
+        description: ID parameter
+        required: true
+        schema:
+          type: integer
+      - name: space-id
+        in: path
+        description: ID parameter
+        required: true
+        schema:
+          type: integer
+    delete:
+      tags:
+        - "User"
+      responses:
+        "200":
+          description: Returns the delted SpaceAccess.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SpaceAccess"
+        "400":
+          description: Issue with your Request.
+        "404":
+          description: Entry not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "User not found, by the given id"
+        "500":
+          description: Issue with the server.
+
+  # Space
+  /spaces/:
+    get:
+      tags:
+        - "Space"
+      responses:
+        "200":
+          description: A list of Spaces.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Space"
+        "500":
+          description: Issue with the server.
+  /space/:
+    post:
+      tags:
+        - "Space"
+      responses:
+        "201":
+          description: Returns the created space.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Space"
+        "500":
+          description: Issue with the server.
+  /space/{space-id}:
+    parameters:
+      - name: space-id
+        in: path
+        description: ID parameter
+        required: true
+        schema:
+          type: integer
+    get:
+      tags:
+        - "Space"
+      responses:
+        "200":
+          description: Returns the specified Space.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Space"
+        "400":
+          description: Issue with your Request.
+        "404":
+          description: Entry not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Space not found, by the given id"
+        "500":
+          description: Issue with the server.
+
+    put:
+      tags:
+        - "Space"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Space"
+      responses:
+        "200":
+          description: Returns the modified Space.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Space"
+        "400":
+          description: Issue with your Request.
+        "404":
+          description: Entry not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Space not found, by the given id"
+        "500":
+          description: Issue with the server.
+    delete:
+      tags:
+        - "Space"
+      responses:
+        "200":
+          description: Space deleted
+        "400":
+          description: Issue with your Request.
+        "404":
+          description: Entry not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Space not found, by the given id"
+        "500":
+          description: Issue with the server.
+
+  # Webhooks
+  /webhooks/:
+    get:
+      tags:
+        - "Webhooks"
+      responses:
+        200:
+          description: Returns successfully all webhooks.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  $ref: "#/components/schemas/Webhook"
+    post:
+      tags:
+        - "Webhooks"
+      responses:
+        200:
+          description: Update successfully a webhook.
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/Webhook"
+
+  /webhooks/{name}:
+    put:
+      tags:
+        - "Webhooks"
+      parameters:
+        - name: name
+          in: path
+          description: Name of the webhook
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/Webhook"
+      responses:
+        200:
+          description: Update successfully a webhook.
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/Webhook"
+
+components:
+  schemas:
+    ContentType:
+      type: object
+      properties:
+        name:
+          type: string
+        stage:
+          type: string
+        multiLanguage:
+          type: boolean
+        singleType:
+          type: boolean
+        allowedMethods:
+          type: array
+          items:
+            type: string
+        fields:
+          type: array
+          items:
+            type: string
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        instanceAdmin:
+          type: boolean
+        origin:
+          type: boolean
+    Password:
+      type: object
+      properties:
+        password:
+          type: string
+    SpaceAccess:
+      type: object
+      properties:
+        spaceID:
+          type: integer
+        admin:
+          type: boolean
+    Space:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        color1:
+          type: string
+        color2:
+          type: string
+        color3:
+          type: string
+        color4:
+          type: string
+        imageURL:
+          type: string
+        primaryLanguage:
+          type: string
+        languages:
+          type: array
+          items:
+            type: string
+    Webhook:
+      type: object
+      properties:
+        name:
+          type: string
+        url:
+          type: string
+        header:
+          type: object
+        events:
+          type: array
+          items:
+            type: string
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: session

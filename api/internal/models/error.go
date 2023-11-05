@@ -1,4 +1,4 @@
-package error_msg
+package models
 
 type Error struct {
 	Error string `json:"error"`

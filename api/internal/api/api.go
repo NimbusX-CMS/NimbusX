@@ -38,6 +38,7 @@ type ServerInterface interface {
 	// (GET /spaces/)
 	GetSpaces(c *gin.Context)
 
+
 	// (POST /user/)
 	PostUser(c *gin.Context)
 

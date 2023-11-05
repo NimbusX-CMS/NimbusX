@@ -4,8 +4,9 @@ import (
 	"fmt"
 
 	"github.com/NimbusX-CMS/NimbusX/api/internal/api"
-	"github.com/NimbusX-CMS/NimbusX/api/internal/business_logic"
 	"github.com/NimbusX-CMS/NimbusX/api/internal/db/multi_db"
+	"github.com/NimbusX-CMS/NimbusX/api/internal/resources"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,7 +23,7 @@ func main() {
 		fmt.Println("Error creating tables:", err)
 		return
 	}
-	server := &business_logic.Server{
+	server := &resources.Server{
 		DB: db,
 	}
 

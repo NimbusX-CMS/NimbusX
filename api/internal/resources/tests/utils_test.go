@@ -1,16 +1,18 @@
-package business_logic
+package resources_test
 
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/NimbusX-CMS/NimbusX/api/internal/db/multi_db"
-	"github.com/gin-gonic/gin"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/NimbusX-CMS/NimbusX/api/internal/db/multi_db"
+	"github.com/NimbusX-CMS/NimbusX/api/internal/resources"
+	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/assert"
 )
 
 type TestCases []TestCase
@@ -91,7 +93,7 @@ func (tc TestCases) testDynamicStringUrlCases(t *testing.T, toTest func(ctx *gin
 	}
 }
 
-func setupServer(t *testing.T) *Server {
+func setupServer(t *testing.T) *resources.Server {
 	testDB, err := multi_db.ConnectToSQLite(":memory:")
 	if err != nil {
 		fmt.Println("Error connecting to database:", err)
@@ -102,7 +104,9 @@ func setupServer(t *testing.T) *Server {
 		fmt.Println("Error creating tables:", err)
 		t.Error("Error connecting to database:", err)
 	}
-	return &Server{DB: testDB}
+	return &resources.Server{
+		DB: testDB,
+	}
 }
 
 func setupGinTest() (*httptest.ResponseRecorder, *gin.Context) {

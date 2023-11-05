@@ -1,0 +1,22 @@
+# IDE files
+api/.idea
+.idea
+
+# API
+#
+# Binaries for programs and plugins
+api/*.exe
+api/*.exe~
+api/*.dll
+api/*.so
+api/*.dylib
+
+# Test binary, built with `go test -c`
+api/*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+api/*.out
+
+# Go workspace file
+api/go.work
+
